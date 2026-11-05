@@ -1,0 +1,7 @@
+"""The plan this submission runs."""
+
+from __future__ import annotations
+
+from .pipeline import Draft, StagePlan, Step
+
+ACTIVE_PLAN = StagePlan(drafts=(Draft(start='plain', model='gpt-6.1-sol', effort='high'), Draft(start='proportions', model='gpt-6.1-sol', effort='high'), Draft(start='plain', model='gpt-6.1-sol', effort='high'), Draft(start='proportions', model='gpt-6.1-sol', effort='high'), Draft(start='plain', model='gpt-6.1-sol', effort='high'), Draft(start='proportions', model='gpt-6.1-sol', effort='high')), steps=(Step(rewrites=(('gpt-6.1-sol', 'high'),), each_lineage=True, focus=('materials', 'shape')), Step(rewrites=(('gpt-6-astra', 'high'),), each_lineage=True, focus=('materials', 'shape')), Step(rewrites=(('gpt-6.1-sol', 'xhigh'),), each_lineage=True), Step(rewrites=(('gpt-6.1-sol', 'xhigh'),), each_lineage=True)), draft_keep=2, draft_each_start=True, pose=True, fill=0.99, glow=0.0, measured=False, outline_fit=False, outline_fit_last=True)
