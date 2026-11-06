@@ -69,7 +69,7 @@ REPAIR_OFFSET = 5000
 SELECT_ID = 9000  # plus 10 * (step + 1); the mirrored call takes the next id
 FINAL_SELECT_ID = 9800
 POSE_ID = 9900
-METAL_PASS = 'root.traverse((o) => { const list = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; for (const m of list) { if (m.metalness !== undefined && m.metalness >= 0.4) { m.metalness = Math.min(0.9, m.metalness + 0.3); if (m.roughness !== undefined) m.roughness *= 0.8; } } });'
+METAL_PASS = 'const __m404 = new Set(); root.traverse((o) => { const list = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; for (const m of list) { if (__m404.has(m)) continue; __m404.add(m); if (m.metalness !== undefined && m.metalness >= 0.25) { m.metalness = 1.0; m.roughness = 0.25; } } });'
 BRIEF_ID = 9990
 BRIEF_MAX_OUTPUT = 4096
 MEASURED_ASTRA_MAX_OUTPUT = 18000  # a lower cap reserves less, so late rewrites are not refused
@@ -1002,7 +1002,7 @@ class Pipeline:
 
     def stronger_metal(self, source: str) -> str:
         """Metal the photo shows as shiny reads as plastic at the capped values. As it is when no part is metal or the renderer refuses."""
-        if not re.search(r"metalness\s*[:=]\s*(0?\.[4-9]|1)", source):
+        if not re.search(r"metalness\s*[:=]\s*(0?\.(2[5-9]|[3-9])|1)", source):
             return source
         at = source.rfind("const box = new THREE.Box3()")
         at = at if at >= 0 else source.rfind("new THREE.Box3()")
