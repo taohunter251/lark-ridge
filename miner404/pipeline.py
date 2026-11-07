@@ -69,7 +69,7 @@ REPAIR_OFFSET = 5000
 SELECT_ID = 9000  # plus 10 * (step + 1); the mirrored call takes the next id
 FINAL_SELECT_ID = 9800
 POSE_ID = 9900
-METAL_PASS = 'const __m404 = new Set(); root.traverse((o) => { const list = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; for (const m of list) { if (__m404.has(m)) continue; __m404.add(m); if (m.metalness !== undefined && m.metalness >= 0.25) { m.metalness = 1.0; m.roughness = 0.25; } } });'
+METAL_PASS = 'const __m404 = new Set(); root.traverse((o) => { const list = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; for (const m of list) { if (__m404.has(m)) continue; __m404.add(m); if (m.metalness !== undefined && m.metalness >= 0.25) { m.metalness = 0.8; m.roughness = 0.2; } } });'
 BRIEF_ID = 9990
 BRIEF_MAX_OUTPUT = 4096
 MEASURED_ASTRA_MAX_OUTPUT = 18000  # a lower cap reserves less, so late rewrites are not refused

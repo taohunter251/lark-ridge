@@ -16,7 +16,7 @@ PRICING = json.loads(Path(__file__).with_name("pricing.json").read_text())
 CREDIT_LIMIT = PRICING["credits_per_prompt"]
 CALL_LIMIT = PRICING["calls_per_prompt"]
 LONG_CONTEXT = PRICING["long_context_above_input_tokens"]
-SAFETY = 0.04  # keep 4% of the credit limit unspent
+SAFETY = 0.06  # keep 6% of the credit limit unspent (r70a: covers an output above the reserved maximum)
 TOKENS_PER_IMAGE = 3000  # conservative per-image input estimate
 CHARS_PER_TOKEN = 3.0  # conservative (code and JSON tokenize densely)
 
@@ -28,9 +28,17 @@ def call_credits(model: str, input_tokens: int, output_tokens: int) -> float:
             + output_tokens * weights["long_output_credits_per_token" if long else "output_credits_per_token"])
 
 
+# r70a (11-06): the guard reserved every call's full output cap, so the planned second Astra step was refused in about half
+# of the prompts while real outputs stay far below the caps (9,066 cached calls of r60b/r61a/r62b/r69a, none truncated):
+# Astra high max 17,669 of 22,000; Sol xhigh max 33,510 of 44,000; Sol rewrite max 20,442 of 32,768; Sol select max 1,274 of 8,192.
+# Reserve the measured maximum plus a margin instead of the cap. Requests (and their caps) are unchanged; only the reservation is.
+RESERVE_OUTPUT = {("gpt-6-astra", 22000): 18500, ("gpt-6.1-sol", 44000): 36000, ("gpt-6.1-sol", 32768): 24000,
+                  ("gpt-6.1-sol", 8192): 2048}
+
+
 def worst_case(model: str, text_chars: int, images: int, max_output_tokens: int) -> float:
     input_tokens = int(text_chars / CHARS_PER_TOKEN) + images * TOKENS_PER_IMAGE
-    return call_credits(model, input_tokens, max_output_tokens)
+    return call_credits(model, input_tokens, RESERVE_OUTPUT.get((model, max_output_tokens), max_output_tokens))
 
 
 class Budget:
